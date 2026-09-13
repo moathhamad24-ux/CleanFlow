@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#204a78">
+<title>CleanFlow v1.2 — iPhone Fixed</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f4f6fa;color:#172033}
+header{background:#204a78;color:#fff;padding:22px 16px 18px}
+h1{margin:0;font-size:32px}.sub{margin-top:5px;opacity:.85}
+nav{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid #dfe3e8;position:sticky;top:0;z-index:10}
+nav button{flex:0 0 auto;border:1px solid #d3dae5;background:#fff;border-radius:13px;padding:13px 17px;font-size:15px;font-weight:700;color:#23476d;touch-action:manipulation}
+nav button.active{background:#204a78;color:#fff}
+main{max-width:900px;margin:auto;padding:16px}
+.page{display:none}.page.active{display:block}
+.notice{background:#fff8d8;border:1px solid #ead27a;border-radius:16px;padding:15px;margin-bottom:16px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border:1px solid #dde3ec;border-radius:18px;padding:17px}
+.num{font-size:30px;font-weight:800}.label{color:#68758c;margin-top:5px}
+h2{font-size:25px;margin:22px 0 12px}
+.btn,button{border:0;border-radius:12px;background:#204a78;color:#fff;padding:12px 16px;font-weight:700;font-size:15px;cursor:pointer;touch-action:manipulation}
+button.secondary{background:#e9eef5;color:#204a78}
+button.danger{background:#b42318}
+button.success{background:#287a4b}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.list{display:grid;gap:10px}
+.item{background:#fff;border:1px solid #dde3ec;border-radius:16px;padding:15px}
+.itemtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.muted,.small{color:#69768b;font-size:14px;margin-top:5px}
+.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf2f7;font-size:12px;font-weight:700}
+.empty{padding:28px;text-align:center;color:#77839a;background:#fff;border-radius:16px;border:1px dashed #cbd3df}
+.form{background:#fff;border:1px solid #dde3ec;border-radius:18px;padding:16px;margin:12px 0}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:13px;font-weight:700;color:#526079;display:block;margin-bottom:5px}
+input,select{width:100%;padding:13px;border:1px solid #cbd3df;border-radius:11px;font-size:16px;background:#fff}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:30}
+.modal.show{display:flex}
+.sheet{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:18px;max-height:90vh;overflow:auto}
+.sheet h2{margin-top:0}
+@media(max-width:600px){.formgrid{grid-template-columns:1fr}.itemtop{align-items:flex-start}}
+@media(min-width:700px){.cards{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CleanFlow</h1>
+  <div class="sub">Cleaning business manager · iPhone-friendly</div>
+</header>
+
+<nav id="nav">
+  <button type="button" data-page="dashboard" class="active">Dashboard</button>
+  <button type="button" data-page="customers">Customers</button>
+  <button type="button" data-page="employees">Employees</button>
+  <button type="button" data-page="jobs">Jobs</button>
+  <button type="button" data-page="payments">Payments</button>
+  <button type="button" data-page="settings">Settings</button>
+</nav>
+
+<main>
+<section id="dashboard" class="page active">
+  <div class="notice">CleanFlow v1.2 — Data is saved on this device/browser.</div>
+  <div class="cards">
+    <div class="card"><div class="num" id="statCustomers">0</div><div class="label">Customers</div></div>
+    <div class="card"><div class="num" id="statEmployees">0</div><div class="label">Employees</div></div>
+    <div class="card"><div class="num" id="statJobs">0</div><div class="label">Jobs</div></div>
+    <div class="card"><div class="num" id="statPaid">$0</div><div class="label">Paid</div></div>
+  </div>
+  <h2>Today's / upcoming jobs</h2>
+  <div id="dashJobs" class="list"></div>
+</section>
+
+<section id="customers" class="page">
+  <h2>Customers</h2>
+  <div class="toolbar"><button type="button" id="addCustomerBtn">+ Add Customer</button></div>
+  <div id="customerList" class="list"></div>
+</section>
+
+<section id="employees" class="page">
+  <h2>Employees</h2>
+  <div class="toolbar"><button type="button" id="addEmployeeBtn">+ Add Employee</button></div>
+  <div id="employeeList" class="list"></div>
+</section>
+
+<section id="jobs" class="page">
+  <h2>Jobs</h2>
+  <div class="toolbar"><button type="button" id="addJobBtn">+ New Job</button></div>
+  <div id="jobList" class="list"></div>
+</section>
+
+<section id="payments" class="page">
+  <h2>Payments</h2>
+  <div class="notice">Tap “Mark Paid” on a job to record its payment.</div>
+  <div id="paymentList" class="list"></div>
+</section>
+
+<section id="settings" class="page">
+  <h2>Settings</h2>
+  <div class="form">
+    <p><b>CleanFlow v1.2</b></p>
+    <p class="small">This demo stores data locally in this browser on this device.</p>
+    <button type="button" class="danger" id="resetBtn">Delete all demo data</button>
+  </div>
+</section>
+</main>
+
+<div id="modal" class="modal" aria-hidden="true">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const KEY="cleanflow_v12";
+const $=id=>document.getElementById(id);
+const modal=$("modal"), sheet=$("sheet");
+
+let data;
+try { data=JSON.parse(localStorage.getItem(KEY)||"null"); } catch(e){ data=null; }
+
+if(!data || !Array.isArray(data.customers) || !Array.isArray(data.employees) || !Array.isArray(data.jobs)){
+  data={customers:[],employees:[],jobs:[],payments:[]};
+}
+
+if(!Array.isArray(data.payments)) data.payments=[];
+
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(data));}
+  catch(e){alert("The browser could not save the data. Please use Safari and allow website storage.");}
+  render();
+}
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function money(n){return "$"+Number(n||0).toFixed(2)}
+function customer(id){return data.customers.find(x=>x.id==id)}
+function employee(id){return data.employees.find(x=>x.id==id)}
+function closeModal(){modal.classList.remove("show");modal.setAttribute("aria-hidden","true");sheet.innerHTML=""}
+function openModal(content){sheet.innerHTML=content;modal.classList.add("show");modal.setAttribute("aria-hidden","false")}
+
+function showPage(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===page));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  window.scrollTo(0,0);
+  render();
+}
+
+document.querySelectorAll("#nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>showPage(btn.dataset.page));
+});
+
+$("addCustomerBtn").addEventListener("click",()=>{
+  openModal(`<h2>Add Customer</h2>
+  <div class="form">
+    <label>Name</label><input id="m_cname" placeholder="Customer name" autocomplete="name">
+    <label>Phone</label><input id="m_cphone" placeholder="Phone" type="tel">
+    <label>Address</label><input id="m_caddress" placeholder="Address">
+    <div class="actions"><button type="button" id="saveCustomer">Save Customer</button><button type="button" class="secondary" id="cancelModal">Cancel</button></div>
+  </div>`);
+  $("saveCustomer").addEventListener("click",()=>{
+    const name=$("m_cname").value.trim();
+    if(!name){alert("Please enter the customer name.");return}
+    data.customers.push({id:Date.now(),name,phone:$("m_cphone").value.trim(),address:$("m_caddress").value.trim()});
+    closeModal();save();
+  });
+  $("cancelModal").addEventListener("click",closeModal);
+  setTimeout(()=>$("m_cname").focus(),50);
+});
+
+$("addEmployeeBtn").addEventListener("click",()=>{
+  openModal(`<h2>Add Employee</h2>
+  <div class="form">
+    <label>Name</label><input id="m_ename" placeholder="Employee name" autocomplete="name">
+    <label>Phone</label><input id="m_ephone" placeholder="Phone" type="tel">
+    <label>Role</label><input id="m_erole" placeholder="Cleaner / Supervisor">
+    <div class="actions"><button type="button" id="saveEmployee">Save Employee</button><button type="button" class="secondary" id="cancelModal">Cancel</button></div>
+  </div>`);
+  $("saveEmployee").addEventListener("click",()=>{
+    const name=$("m_ename").value.trim();
+    if(!name){alert("Please enter the employee name.");return}
+    data.employees.push({id:Date.now(),name,phone:$("m_ephone").value.trim(),role:$("m_erole").value.trim()});
+    closeModal();save();
+  });
+  $("cancelModal").addEventListener("click",closeModal);
+  setTimeout(()=>$("m_ename").focus(),50);
+});
+
+$("addJobBtn").addEventListener("click",()=>{
+  if(!data.customers.length){alert("Add a customer first.");showPage("customers");return}
+  const cs=data.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  const es=data.employees.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join("");
+  const today=new Date().toISOString().slice(0,10);
+  openModal(`<h2>New Job</h2>
+  <div class="form">
+    <label>Customer</label><select id="m_jcustomer">${cs}</select>
+    <label>Employee</label><select id="m_jemployee"><option value="">Unassigned</option>${es}</select>
+    <div class="formgrid">
+      <div><label>Date</label><input id="m_jdate" type="date" value="${today}"></div>
+      <div><label>Time</label><input id="m_jtime" type="time" value="09:00"></div>
+    </div>
+    <label>Service</label><input id="m_jservice" value="Standard Cleaning">
+    <label>Price</label><input id="m_jprice" type="number" min="0" step="0.01" value="120">
+    <div class="actions"><button type="button" id="saveJob">Save Job</button><button type="button" class="secondary" id="cancelModal">Cancel</button></div>
+  </div>`);
+  $("saveJob").addEventListener("click",()=>{
+    const price=Number($("m_jprice").value||0);
+    data.jobs.push({
+      id:Date.now(),customerId:Number($("m_jcustomer").value),
+      employeeId:$("m_jemployee").value?Number($("m_jemployee").value):null,
+      date:$("m_jdate").value,time:$("m_jtime").value,
+      service:$("m_jservice").value.trim()||"Cleaning",
+      price,status:"Scheduled",paid:false
+    });
+    closeModal();save();
+  });
+  $("cancelModal").addEventListener("click",closeModal);
+});
+
+$("resetBtn").addEventListener("click",()=>{
+  if(confirm("Delete ALL CleanFlow data from this browser?")){
+    data={customers:[],employees:[],jobs:[],payments:[]};
+    save();
+    showPage("dashboard");
+  }
+});
+
+function markPaid(id){
+  const j=data.jobs.find(x=>x.id===id);
+  if(j){j.paid=true;data.payments.push({id:Date.now(),jobId:id,amount:Number(j.price||0),date:new Date().toISOString().slice(0,10)});save();}
+}
+function completeJob(id){
+  const j=data.jobs.find(x=>x.id===id);
+  if(j){j.status="Completed";save();}
+}
+function delJob(id){
+  if(confirm("Delete this job?")){data.jobs=data.jobs.filter(x=>x.id!==id);data.payments=data.payments.filter(x=>x.jobId!==id);save();}
+}
+
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-action]");
+  if(!el)return;
+  const id=Number(el.dataset.id);
+  if(el.dataset.action==="paid")markPaid(id);
+  if(el.dataset.action==="complete")completeJob(id);
+  if(el.dataset.action==="delete-job")delJob(id);
+});
+
+function render(){
+  $("statCustomers").textContent=data.customers.length;
+  $("statEmployees").textContent=data.employees.length;
+  $("statJobs").textContent=data.jobs.length;
+  $("statPaid").textContent=money(data.payments.reduce((a,p)=>a+Number(p.amount||0),0));
+
+  $("customerList").innerHTML=data.customers.map(c=>`
+    <div class="item"><div class="itemtop"><b>${esc(c.name)}</b></div>
+    <div class="muted">${esc(c.phone||"No phone")} · ${esc(c.address||"No address")}</div></div>`).join("") ||
+    '<div class="empty">No customers yet.</div>';
+
+  $("employeeList").innerHTML=data.employees.map(e=>`
+    <div class="item"><b>${esc(e.name)}</b>
+    <div class="muted">${esc(e.role||"Cleaner")} · ${esc(e.phone||"No phone")}</div></div>`).join("") ||
+    '<div class="empty">No employees yet.</div>';
+
+  const jobs=[...data.jobs].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  $("jobList").innerHTML=jobs.map(j=>`
+    <div class="item">
+      <div class="itemtop"><div><b>${esc(customer(j.customerId)?.name||"Unknown customer")}</b>
+      <div class="muted">${esc(j.date||"No date")} · ${esc(j.time||"")} · ${esc(j.service||"Cleaning")}</div>
+      <div class="muted">Employee: ${esc(employee(j.employeeId)?.name||"Unassigned")} · ${money(j.price)}</div></div>
+      <span class="pill">${esc(j.status)}</span></div>
+      <div class="actions">
+        ${j.status!=="Completed"?`<button type="button" class="success" data-action="complete" data-id="${j.id}">Complete</button>`:""}
+        ${!j.paid?`<button type="button" data-action="paid" data-id="${j.id}">Mark Paid</button>`:`<span class="pill">Paid</span>`}
+        <button type="button" class="danger" data-action="delete-job" data-id="${j.id}">Delete</button>
+      </div>
+    </div>`).join("") || '<div class="empty">No jobs yet.</div>';
+
+  $("dashJobs").innerHTML=jobs.slice(0,5).map(j=>`
+    <div class="item"><b>${esc(customer(j.customerId)?.name||"Unknown")}</b>
+    <div class="muted">${esc(j.date||"No date")} · ${esc(j.time||"")} · ${money(j.price)} · ${esc(j.status)}</div></div>`).join("") ||
+    '<div class="empty">No upcoming jobs.</div>';
+
+  $("paymentList").innerHTML=data.payments.slice().reverse().map(p=>{
+    const j=data.jobs.find(x=>x.id===p.jobId);
+    return `<div class="item"><b>${money(p.amount)}</b>
+      <div class="muted">${esc(j?customer(j.customerId)?.name||"Unknown":"Deleted job")} · ${esc(p.date||"")} · Paid</div></div>`;
+  }).join("") || '<div class="empty">No payments recorded yet.</div>';
+}
+
+modal.addEventListener("click",e=>{if(e.target===modal)closeModal();});
+render();
+
+})();
+</script>
+</body>
+</html>
